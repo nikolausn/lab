@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/Volumes/HD-500GB/Users/nikolausn/Applications/anaconda/bin/python3.5
 import csv;
 import json;
 import os;
@@ -30,7 +30,7 @@ for row in reader:
 #        custRow["states"] = row["states"];
 #        custRow["zipcode"] = row["zipcode"];
     i = i + 1;
-customer["length"] = i-1;
+customer["length"] = i;
 
 # read stores references and put it on memory
 reader = csv.DictReader(storesFile, storesField,delimiter=',');
@@ -51,22 +51,44 @@ for row in reader:
 #        storeRow["state"] = row["state"];
 #        storeRow["zipcode"] = row["zipcode"];
     i = i + 1;
-stores["length"] = i-1;
+stores["length"] = i;
 
 # read transaction file
 reader = csv.DictReader(transactionFile, transactionField,delimiter=',');
 i = 0;
+groupCustIdManager = {};
+
 for row in reader:
     if (i!=0):
         myCust = customer[row['custId']];
         myStore = stores[row['storeNumber']];
-        print "customer name: %s, transaction date: %s, transaction amount: %s, store manager: %s" %(myCust['custName'],row['transDate'],row['amount'],myStore['storeManager']);
+        print("customer name: %s, transaction date: %s, transaction amount: %s, store manager: %s" %(myCust['custName'],row['transDate'],row['amount'],myStore['storeManager']));
+        
+        #group by customer id and manager
+        #check if not exist customerId
+        if(not row['custId'] in groupCustIdManager.keys()):
+            #init customer
+            groupCustIdManager[row['custId']] = {};
+            groupCustIdManager[row['custId']][myStore['storeManager']] = {};
+            groupCustIdManager[row['custId']][myStore['storeManager']]['amount'] = row['amount'];
+            groupCustIdManager[row['custId']][myStore['storeManager']]['count'] = 1;
+            groupCustIdManager[row['custId']][myStore['storeManager']]['custname'] = myCust['custName'];
+        else:
+            #check if not exist manager
+            if(not myStore['storeManager'] in groupCustIdManager[row['custId']].keys()):
+                #init manager
+                groupCustIdManager[row['custId']][myStore['storeManager']] = {};
+                groupCustIdManager[row['custId']][myStore['storeManager']]['amount'] = row['amount'];
+                groupCustIdManager[row['custId']][myStore['storeManager']]['count'] = 1;
+                groupCustIdManager[row['custId']][myStore['storeManager']]['custname'] = myCust['custName'];                
+            else:
+                #add amount to existing grouping value
+                groupCustIdManager[row['custId']][myStore['storeManager']]['amount'] = groupCustIdManager[row['custId']][myStore['storeManager']]['amount'] + row['amount'];
+                groupCustIdManager[row['custId']][myStore['storeManager']]['count'] = groupCustIdManager[row['custId']][myStore['storeManager']]['count'] + 1;
     i = i + 1;
 
-
-        
-    
-
-
-
-
+#print groupCustIdManager
+print("group by customer id and manager: ")
+for attrCust,valueCust in groupCustIdManager.items():
+    for attrStore,valueStore in valueCust.items():
+        print("customer id: %s, custname: %s, manager: %s, sum amount: %s, count: %s" %(attrCust,attrStore,valueStore['custname'],valueStore['amount'],valueStore['count']));
