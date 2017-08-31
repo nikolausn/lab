@@ -1,7 +1,6 @@
-#!/Volumes/HD-500GB/Users/nikolausn/Applications/anaconda/bin/python3.5
 import csv;
-import json;
-import os;
+#import json;
+#import os;
 
 customerFile = open('customers.dat', 'r');
 storesFile = open('stores.dat', 'r');
@@ -20,7 +19,7 @@ for row in reader:
         # Short way, copy the object
         customer[row["custId"]] = row.copy();
         
-        # Long way, copy selective attribtue only
+        # Long way, copy selective attributes only
 #        customer[row["custId"]] = {};
 #        custRow = customer[row["custId"]];
 #        custRow["custId"] = row["custId"];
@@ -58,6 +57,7 @@ reader = csv.DictReader(transactionFile, transactionField,delimiter=',');
 i = 0;
 groupCustIdManager = {};
 
+print('Join Operation between customer, store, and transaction:')
 for row in reader:
     if (i!=0):
         myCust = customer[row['custId']];
@@ -88,7 +88,7 @@ for row in reader:
     i = i + 1;
 
 #print groupCustIdManager
-print("group by customer id and manager: ")
+print("\nGroup by customer id and manager: ")
 for attrCust,valueCust in groupCustIdManager.items():
     for attrStore,valueStore in valueCust.items():
-        print("customer id: %s, custname: %s, manager: %s, sum amount: %s, count: %s" %(attrCust,attrStore,valueStore['custname'],valueStore['amount'],valueStore['count']));
+        print("customer id: %s, custname: %s, manager: %s, sum amount: %s, trans count: %s" %(attrCust,valueStore['custname'],attrStore,valueStore['amount'],valueStore['count']));
